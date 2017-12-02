@@ -1,0 +1,4 @@
+*.sqlite
+__pycache__
+.idea/
+settings.py
