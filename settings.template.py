@@ -13,3 +13,6 @@ DB_URL = "mysql://root:rosebud@localhost/tmdnlcl"
 
 # 트위터 API 콜백 URL, 로그인때밖에 안씀
 CALLBACK_URL = "http://tmdnlcl.iamghost.kr"
+
+# 해시태그
+HASH_TAG = "#NintendoSwitch"
