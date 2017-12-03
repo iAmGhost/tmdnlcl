@@ -91,7 +91,7 @@ def process_user(user):
     twitter = Twython(settings.TWITTER_API_KEY, settings.TWITTER_API_SECRET,
                       user.oauth_token, user.oauth_token_secret)
 
-    tweets = twitter.get_user_timeline(user_id=user.id)
+    tweets = twitter.get_user_timeline(user_id=user.id, since_id=user.id)
 
     user.search_limit = int(twitter.get_lastfunction_header('X-Rate-Limit-Remaining', None))
     user.search_limit_reset = arrow.get(twitter.get_lastfunction_header('X-Rate-Limit-Reset', None)) \
