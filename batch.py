@@ -53,20 +53,28 @@ def process_tweet(twitter, tweet):
     if has_pattern(text):
         media = tweet['extended_entities']['media'][0]
 
-        text = text.replace(f"{media['url']}", "").strip()
+        file_url = media['media_url']
 
-        media_id = media['id']
+        if media['type'] == 'video':
+            file_url = media['video_info']['variants'][0]['url']
+
+        ext = file_url.split('/')[-1].split('.')[-1]
 
         if media['type'] == 'photo':
-            file_url = media['media_url']
-            ext = file_url.split('/')[-1].split('.')[-1]
             file_url += ':orig'
 
-            with NamedTemporaryFile(suffix=f'.{ext}', delete=False) as f:
-                download_file(file_url, f)
-                f.close()
+        text = text.replace(f"{media['url']}", "").strip()
+
+        with NamedTemporaryFile(suffix=f'.{ext}', delete=False) as f:
+            download_file(file_url, f)
+            f.close()
+
+            if media['type'] == 'photo':
                 media_id = twitter.upload_media(media=open(f.name, 'rb'))['media_id']
-                os.unlink(f.name)
+            else:
+                media_id = twitter.upload_video(open(f.name, 'rb'), 'video/mp4')['media_id']
+
+            os.unlink(f.name)
 
         twitter.update_status(status=convert(text), media_ids=[media_id])
         twitter.destroy_status(id=tweet['id'])
