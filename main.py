@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Flask, request, session
+from flask import Flask, request, session, render_template
 from twython import Twython, TwythonError
 from peewee import IntegrityError
 
@@ -22,7 +22,7 @@ def index():
         session['oauth_token'] = auth['oauth_token']
         session['oauth_token_secret'] = auth['oauth_token_secret']
 
-        return f"<a href='{auth['auth_url']}'>등록</a>"
+        return render_template("index.html", auth_url=auth['auth_url'])
 
     try:
         twitter = Twython(settings.TWITTER_API_KEY, settings.TWITTER_API_KEY,
