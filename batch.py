@@ -108,7 +108,7 @@ def process_user(user):
             continue
 
     if len(tweets) > 0:
-        user.last_tweet_id = tweets[0]['id']
+        user.last_tweet_id = max(tweets, key=lambda t: t['id'])['id']
         user.save()
 
 
