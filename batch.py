@@ -10,7 +10,7 @@ import requests
 from twython import Twython, TwythonAuthError
 from heconvert.converter import e2h
 
-from db import User
+from db import db, User
 import settings
 
 
@@ -94,7 +94,8 @@ def process_user(user):
     try:
         tweets = twitter.get_user_timeline(user_id=user.id, since_id=user.id)
     except TwythonAuthError:
-        user.delete()
+        db.session.delete(user)
+        db.session.commit()
         return
 
     user.search_limit = int(twitter.get_lastfunction_header('X-Rate-Limit-Remaining', None))
@@ -102,7 +103,7 @@ def process_user(user):
         .to('Asia/Seoul') \
         .datetime
 
-    user.save()
+    db.session.commit()
 
     for tweet in tweets:
         try:
@@ -113,11 +114,11 @@ def process_user(user):
 
     if len(tweets) > 0:
         user.last_tweet_id = max(tweets, key=lambda t: t['id'])['id']
-        user.save()
+        db.session.commit()
 
 
 def run():
-    for user in User.select():
+    for user in db.session.query(User):
         try:
             process_user(user)
         except Exception as e:

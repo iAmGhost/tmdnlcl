@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
-from flask import Flask, request, session, render_template
+from app import app
+from flask import request, session, render_template
 from twython import Twython, TwythonError
-from peewee import IntegrityError
-
-from db import User
 import settings
-
-app = Flask(__name__)
-app.secret_key = settings.APP_SECRET
+from db import db, User
 
 
 @app.route("/")
@@ -32,13 +28,17 @@ def index():
         return "뭐지"
 
     try:
-        User.create(id=int(token['user_id']), oauth_token=token['oauth_token'],
+        user = User(id=int(token['user_id']),
+                    oauth_token=token['oauth_token'],
                     oauth_token_secret=token['oauth_token_secret'])
-    except IntegrityError:
-        pass
+        db.session.add(user)
+        db.session.commit()
+    except db.exc.IntegrityError:
+        db.session.rollback()
 
     return "등록됐슴"
 
 
 if __name__ == '__main__':
+    db.create_all()
     app.run()
