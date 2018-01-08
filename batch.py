@@ -110,7 +110,6 @@ def process_user(user):
             process_tweet(twitter, tweet)
         except Exception as e:
             print(e)
-            continue
 
     if len(tweets) > 0:
         user.last_tweet_id = max(tweets, key=lambda t: t['id'])['id']
