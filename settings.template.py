@@ -16,3 +16,6 @@ CALLBACK_URL = "http://tmdnlcl.iamghost.kr"
 
 # 해시태그
 HASH_TAG = "#NintendoSwitch"
+
+# 검색모드(timeline, search)
+API_MODE = 'timeline'
