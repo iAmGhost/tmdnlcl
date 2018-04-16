@@ -25,7 +25,7 @@ def index():
                           session['oauth_token'], session['oauth_token_secret'])
         token = twitter.get_authorized_tokens(oauth_verifier)
     except TwythonError:
-        return "뭐지"
+        return "뭐지 앱 인증을 해제하고 다시 하던가 해보세요"
 
     try:
         user = User(id=int(token['user_id']),
@@ -36,7 +36,7 @@ def index():
     except db.exc.IntegrityError:
         db.session.rollback()
 
-    return "등록됐슴"
+    return "등록됐습니다 트윗을 올려보세요"
 
 
 if __name__ == '__main__':
