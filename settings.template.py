@@ -19,3 +19,6 @@ HASH_TAG = "#NintendoSwitch"
 
 # 검색모드(timeline, search)
 API_MODE = 'timeline'
+
+# 한바퀴 돌고나서 딜레이, 사용자 수가 적은데 너무 빨리 돌면 Limit에 걸릴 수 있음
+BATCH_INTERVAL = 5
