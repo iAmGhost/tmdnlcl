@@ -1,3 +1,5 @@
+import threading
+from queue import Queue, Empty
 import traceback
 import re
 import shutil
@@ -87,14 +89,11 @@ def process_tweet(twitter, tweet):
 
 
 def process_user(user):
-    print(f"User: {user.id}")
-
     if user.search_limit == 0 and arrow.get(user.search_limit_reset).replace(tzinfo='Asia/Seoul') > arrow.now():
         print("Rate limit exceeded.")
         return
 
-    twitter = Twython(settings.TWITTER_API_KEY, settings.TWITTER_API_SECRET,
-                      user.oauth_token, user.oauth_token_secret)
+    twitter = Twython(settings.TWITTER_API_KEY, settings.TWITTER_API_SECRET, user.oauth_token, user.oauth_token_secret)
 
     try:
         if settings.API_MODE == 'search':
@@ -125,15 +124,57 @@ def process_user(user):
         db.session.commit()
 
 
-def run():
-    for user in db.session.query(User):
+class Worker(threading.Thread):
+    def __init__(self, name, queue):
+        super().__init__()
+        self.name = name
+        self.queue = queue
+        self.exit = threading.Event()
+
+    def run(self):
+        while not self.exit.is_set():
+            try:
+                user_id = self.queue.get(True, 1)
+            except Empty:
+                continue
+
+            user = db.session.query(User).filter_by(id=user_id).first()
+
+            try:
+                print(f"[{self.name}] User: {user.id}")
+                process_user(user)
+            except KeyboardInterrupt:
+                break
+            except Exception:
+                traceback.print_exc()
+
+            self.queue.task_done()
+
+
+def main():
+    queue = Queue(maxsize=settings.NUM_THREADS)
+
+    workers = [Worker("Thread-%d" % i, queue) for i in range(settings.NUM_THREADS)]
+
+    for worker in workers:
+        worker.start()
+
+    while True:
         try:
-            process_user(user)
-        except Exception:
-            traceback.print_exc()
+            for user in db.session.query(User):
+                queue.put(user.id)
+
+            time.sleep(settings.BATCH_INTERVAL)
+        except KeyboardInterrupt:
+            print("Halt!")
+            break
+
+    queue.join()
+
+    for worker in workers:
+        worker.exit.set()
+        worker.join()
 
 
 if __name__ == '__main__':
-    while True:
-        run()
-        time.sleep(settings.BATCH_INTERVAL)
+    main()
