@@ -2,6 +2,7 @@
 from app import app
 from flask import request, session, render_template
 from twython import Twython, TwythonError
+from sqlalchemy.exc import IntegrityError
 import settings
 from db import db, User
 
@@ -33,7 +34,7 @@ def index():
                     oauth_token_secret=token['oauth_token_secret'])
         db.session.add(user)
         db.session.commit()
-    except db.exc.IntegrityError:
+    except IntegrityError:
         db.session.rollback()
 
     return "등록됐습니다 트윗을 올려보세요"
