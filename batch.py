@@ -5,6 +5,7 @@ import re
 import shutil
 import os
 import time
+from datetime import datetime
 from tempfile import NamedTemporaryFile
 
 import arrow
@@ -13,7 +14,7 @@ import requests
 from twython import Twython, TwythonAuthError
 from heconvert.converter import e2h
 
-from db import db, User
+from db import db, User, Stats
 import settings
 
 
@@ -119,6 +120,10 @@ def process_user(user):
         except Exception:
             traceback.print_exc()
 
+        stat = Stats.get_singleton()
+        stat.last_update = datetime.now()
+        db.session.commit()
+
     if len(tweets) > 0:
         user.last_tweet_id = max(tweets, key=lambda t: t['id'])['id']
         db.session.commit()
@@ -152,6 +157,8 @@ class Worker(threading.Thread):
 
 
 def main():
+    db.create_all()
+
     queue = Queue(maxsize=settings.NUM_THREADS)
 
     workers = [Worker("Thread-%d" % i, queue) for i in range(settings.NUM_THREADS)]

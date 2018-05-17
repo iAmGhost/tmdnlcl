@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-from app import app
+import arrow
 from flask import request, session, render_template
 from twython import Twython, TwythonError
 from sqlalchemy.exc import IntegrityError
+
 import settings
-from db import db, User
+from app import app
+from db import db, User, Stats
 
 
 @app.route("/")
@@ -19,7 +21,10 @@ def index():
         session['oauth_token'] = auth['oauth_token']
         session['oauth_token_secret'] = auth['oauth_token_secret']
 
-        return render_template("index.html", auth_url=auth['auth_url'])
+        last_update = arrow.get(Stats.get_singleton().last_update).replace(tzinfo='Asia/Seoul')
+
+        return render_template("index.html", auth_url=auth['auth_url'], user_count=db.session.query(User).count(),
+                               last_update="%s(%s)" % (last_update.format(), last_update.humanize(locale='ko_kr')))
 
     try:
         twitter = Twython(settings.TWITTER_API_KEY, settings.TWITTER_API_KEY,
