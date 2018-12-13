@@ -127,7 +127,7 @@ class Tweet(models.Model):
                             video_url = variant['url']
                             break
 
-                    attachment = Attachment.objects.create(
+                    attachment = Attachment(
                         tweet=tweet,
                         type=Attachment.VIDEO,
                         ext=media_ext,
@@ -138,11 +138,13 @@ class Tweet(models.Model):
                     attachment.file.save(f"{tweet.id}_{pendulum.now().timestamp()}.mp4",
                                          url_to_file(video_url))
 
+                    attachment.save()
+
                     return tweet
                 elif media['type'] == 'photo':
                     media_url += ':orig'
 
-                attachment = Attachment.objects.create(
+                attachment = Attachment(
                     tweet=tweet,
                     type=Attachment.PHOTO,
                     ext=media_ext,
@@ -150,6 +152,8 @@ class Tweet(models.Model):
                 attachment.thumbnail.save(f"{tweet.id}_{pendulum.now().timestamp()}_thumb.{media_ext}",
                                           url_to_file(media_url))
                 attachment.file.save(f"{tweet.id}_{pendulum.now().timestamp()}.{media_ext}", url_to_file(media_url))
+
+                attachment.save()
 
             return tweet
 
