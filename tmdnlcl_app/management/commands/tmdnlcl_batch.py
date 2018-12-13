@@ -6,7 +6,7 @@ import traceback
 
 from django.core.management.base import BaseCommand
 
-from tmdnlcl_app.models import Tweet, TwitterUser
+from tmdnlcl_app.models import Tweet, TwitterUser, AppSetting
 
 from twython import TwythonAuthError
 
@@ -76,6 +76,11 @@ class Command(BaseCommand):
         parser.add_argument('threads', default=1, type=int)
 
     def handle(self, *args, **options):
+        setting = AppSetting.get_solo()
+
+        assert setting.twitter_api_key is not None
+        assert setting.twitter_api_secret is not None
+
         threads = options['threads']
 
         q = queue.Queue(maxsize=threads)
