@@ -119,6 +119,8 @@ class Tweet(models.Model):
 
                 media_ext = media_url.split('/')[-1].split('.')[-1]
 
+                text = text.replace(media['url'], "")
+
                 if media['type'] == 'video':
                     video_url = ""
 
@@ -140,6 +142,8 @@ class Tweet(models.Model):
 
                     attachment.save()
 
+                    tweet.content = text
+                    tweet.save(update_fields=['content'])
                     return tweet
                 elif media['type'] == 'photo':
                     media_url += ':orig'
@@ -154,6 +158,9 @@ class Tweet(models.Model):
                 attachment.file.save(f"{tweet.id}_{pendulum.now().timestamp()}.{media_ext}", url_to_file(media_url))
 
                 attachment.save()
+
+            tweet.content = text
+            tweet.save(update_fields=['content'])
 
             return tweet
 
