@@ -41,6 +41,7 @@ def safe_convert(match_obj):
 class AppSetting(SingletonModel):
     twitter_api_key = models.CharField(max_length=255, blank=True, null=True)
     twitter_api_secret = models.CharField(max_length=255, blank=True, null=True)
+    batch_delay = models.IntegerField(default=5)
 
 
 class TwitterUser(models.Model):

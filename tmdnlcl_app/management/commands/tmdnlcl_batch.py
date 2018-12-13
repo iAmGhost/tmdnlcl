@@ -1,3 +1,4 @@
+import time
 import threading
 import queue
 import collections
@@ -15,14 +16,16 @@ Media = collections.namedtuple('Media', 'type,url')
 
 
 class Worker(threading.Thread):
-    def __init__(self, name, q):
+    def __init__(self, name, q, delay):
         super().__init__()
         self.name = name
         self.queue = q
         self.exit = threading.Event()
+        self.delay = delay
 
     def run(self):
         while not self.exit.is_set():
+
             try:
                 user_id = self.queue.get(True, 1)
                 user = TwitterUser.objects.get(id=user_id)
@@ -68,6 +71,8 @@ class Worker(threading.Thread):
 
             self.queue.task_done()
 
+            time.sleep(self.delay)
+
         print(f"[{self.name}] 끝")
 
 
@@ -85,7 +90,7 @@ class Command(BaseCommand):
 
         q = queue.Queue(maxsize=threads)
 
-        workers = [Worker(f"Worker-{i}", q) for i in range(threads)]
+        workers = [Worker(f"Worker-{i}", q, setting.batch_delay) for i in range(threads)]
 
         for worker in workers:
             worker.start()
