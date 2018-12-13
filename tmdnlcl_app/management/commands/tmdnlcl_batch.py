@@ -96,7 +96,7 @@ class Command(BaseCommand):
 
         while True:
             try:
-                for user in TwitterUser.objects.all():
+                for user in TwitterUser.objects.all().order_by('last_update'):
                     q.put(user.id)
             except KeyboardInterrupt:
                 print("종료중...")
