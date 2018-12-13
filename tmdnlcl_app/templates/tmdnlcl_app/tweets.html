@@ -1,0 +1,45 @@
+{% if tweets.count == 0 %}
+    아직 저장된 트윗이 없습니다.
+{% else %}
+    {% for tweet in tweets %}
+        <div class="card mb-4">
+            <div class="row">
+                <div class="col-xs-12 sm-4">
+                    <div class="mt-4 ml-4">
+                        {% if tweet.attachment_set.count == 1 %}
+                            {% if tweet.attachment_set.first.thumbnail %}
+                                <img class="card-img-top" src="{{ tweet.attachment_set.first.thumbnail.url }}">
+                            {% endif %}
+                        {% else %}
+                            <div class="row">
+                                {% for attachment in tweet.attachment_set.all %}
+                                    <div class="col-6">
+                                        {% if attachment.thumbnail %}
+                                            <img class="img-fluid" src="{{ attachment.thumbnail.url }}">
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-8">
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <div class="float-right">
+                                <a class="btn btn-danger" href="/delete/{{ tweet.id }}">삭제</a>
+                            </div>
+                            <h5 class="card-title">{{ tweet.submitted_at }}({{ tweet.attachment_set.first.get_type_display }})</h5>
+                        </div>
+                        <form method="post" action="{% url 'post' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="tweet_id" value="{{ tweet.id }}"/>
+                            <textarea name="content" class="form-control" maxlength="140">{{ tweet.get_converted_content }}</textarea>
+                            <button class="btn btn-primary mt-2" type="submit">트윗</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}

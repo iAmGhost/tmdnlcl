@@ -1,0 +1,21 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+django = "*"
+django-bootstrap4 = "*"
+twython = "*"
+requests = "*"
+django-solo = "*"
+pillow = "*"
+pendulum = "*"
+heconvert = "*"
+django-imagekit = "*"
+django-cleanup = "*"
+
+[requires]
+python_version = "3.7"
