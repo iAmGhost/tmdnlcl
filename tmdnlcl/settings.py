@@ -27,7 +27,7 @@ SECRET_KEY = external_settings.SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = external_settings.DEBUG
 
-ALLOWED_HOSTS = external_settings.ALLOWED_SETTINGS
+ALLOWED_HOSTS = external_settings.ALLOWED_HOSTS
 
 
 # Application definition
