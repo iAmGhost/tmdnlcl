@@ -3,7 +3,7 @@ import threading
 import queue
 import collections
 import traceback
-
+import pendulum
 
 from django.core.management.base import BaseCommand
 
@@ -25,7 +25,6 @@ class Worker(threading.Thread):
 
     def run(self):
         while not self.exit.is_set():
-
             try:
                 user_id = self.queue.get(True, 1)
                 user = TwitterUser.objects.get(id=user_id)

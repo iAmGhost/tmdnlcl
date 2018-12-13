@@ -2,6 +2,7 @@
 from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from django.http import Http404
+from django.db.models import Max
 
 from tmdnlcl_app.models import AppSetting, TwitterUser, Tweet
 from tmdnlcl_app.forms import TweetPostForm, TwitterUserModeForm
@@ -44,7 +45,13 @@ def index(request):
     if user is not None:
         tweets = user.tweet_set.all().order_by('-submitted_at')
 
-    return render(request, 'tmdnlcl_app/index.html', {'tweets': tweets, 'user': user, 'mode_form': mode_form})
+    return render(request, 'tmdnlcl_app/index.html', {
+        'tweets': tweets,
+        'user': user,
+        'mode_form': mode_form,
+        'total_users': TwitterUser.objects.count(),
+        'last_update': TwitterUser.objects.aggregate(last_update=Max('last_update'))['last_update']
+    })
 
 
 def delete(request, tweet_id):

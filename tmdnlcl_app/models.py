@@ -60,6 +60,7 @@ class TwitterUser(models.Model):
     rate_limit_remaining = models.IntegerField(null=True, blank=True)
     rate_limit_reset = models.DateTimeField(null=True, blank=True)
     mode = models.SmallIntegerField(default=MODE_ARCHIVE, choices=MODE_CHOICES, verbose_name="동작 방식")
+    last_update = models.DateTimeField(auto_now=True, db_index=True)
 
     def get_twitter_api(self):
         setting = AppSetting.get_solo()
@@ -88,7 +89,7 @@ class TwitterUser(models.Model):
         if limit_reset is not None:
             self.rate_limit_reset = pendulum.from_timestamp(int(limit_reset))
 
-        self.save(update_fields=['rate_limit_remaining', 'rate_limit_reset'])
+        self.save(update_fields=['rate_limit_remaining', 'rate_limit_reset', 'last_update'])
 
         return tweets
 
