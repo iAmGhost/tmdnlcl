@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap4',
     'solo',
+    'django_cleanup',
     'tmdnlcl_app',
 ]
 

@@ -98,6 +98,8 @@ class Command(BaseCommand):
             try:
                 for user in TwitterUser.objects.all().order_by('last_update'):
                     q.put(user.id)
+
+                Tweet.objects.filter(submitted_at__lte=pendulum.now().subtract(days=-1)).delete()
             except KeyboardInterrupt:
                 print("종료중...")
                 break
